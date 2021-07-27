@@ -5,6 +5,7 @@
  */
 package dev.simondufour.hangman.ui;
 
+import dev.simondufour.hangman.game.Hangman;
 import dev.simondufour.hangman.wordGenerator.WordGen;
 import javax.swing.JButton;
 
@@ -12,9 +13,10 @@ import javax.swing.JButton;
  *
  * @author Simon Dufour
  */
-public class gameFrame extends javax.swing.JFrame {
+public class gameFrame extends javax.swing.JFrame implements Observer {
 
     WordGen wordGen = new WordGen();
+    Hangman hangman = new Hangman(wordGen);
     
     /**
      * Creates new form gameFrame
@@ -23,6 +25,7 @@ public class gameFrame extends javax.swing.JFrame {
         initComponents();
         virtualKeyboard1.setEnabled(false);
         updateStatusBar();
+        hangman.addObserver(this);
     }
 
     /**
@@ -39,6 +42,13 @@ public class gameFrame extends javax.swing.JFrame {
         btnAddWord = new javax.swing.JButton();
         lblTotalWords = new javax.swing.JLabel();
         virtualKeyboard1 = new dev.simondufour.hangman.ui.VirtualKeyboard();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        txtPlayerName = new javax.swing.JTextField();
+        txtScore = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        txtMysteryWord = new java.awt.TextField();
+        btnNewGame = new javax.swing.JButton();
         mbMenu = new javax.swing.JMenuBar();
         mFile = new javax.swing.JMenu();
         miNewGame = new javax.swing.JMenuItem();
@@ -73,6 +83,57 @@ public class gameFrame extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setText("Player name: ");
+
+        jLabel2.setText("Score:");
+
+        txtMysteryWord.setEditable(false);
+        txtMysteryWord.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+
+        btnNewGame.setText("Start a new game");
+        btnNewGame.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNewGameActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtMysteryWord, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtScore)
+                            .addComponent(txtPlayerName)))
+                    .addComponent(btnNewGame, javax.swing.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(txtPlayerName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(txtScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(40, 40, 40)
+                .addComponent(txtMysteryWord, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnNewGame, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
         mFile.setText("File");
 
         miNewGame.setText("New game...");
@@ -104,28 +165,34 @@ public class gameFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(lblTotalWords, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addGap(160, 160, 160)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btnGetRandomWord, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txtRandomWord)
-                    .addComponent(btnAddWord, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(46, 579, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(virtualKeyboard1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(160, 160, 160)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnGetRandomWord, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtRandomWord)
+                            .addComponent(btnAddWord, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(virtualKeyboard1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 148, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(102, 102, 102)
-                .addComponent(txtRandomWord, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnGetRandomWord)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnAddWord)
-                .addGap(18, 18, 18)
-                .addComponent(virtualKeyboard1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(102, 102, 102)
+                        .addComponent(txtRandomWord, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnGetRandomWord)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnAddWord)
+                        .addGap(18, 18, 18)
+                        .addComponent(virtualKeyboard1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblTotalWords))
         );
@@ -137,8 +204,8 @@ public class gameFrame extends javax.swing.JFrame {
         txtRandomWord.setText(wordGen.getRandomWord());
         virtualKeyboard1.setEnabled(true);
         virtualKeyboard1.reset();
-        virtualKeyboard1.markAsTriggered("A");
         updateStatusBar();
+        hangman.randomScore();
     }//GEN-LAST:event_btnGetRandomWordActionPerformed
 
     private void btnAddWordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddWordActionPerformed
@@ -147,8 +214,14 @@ public class gameFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAddWordActionPerformed
 
     private void virtualKeyboard1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_virtualKeyboard1ActionPerformed
-        System.out.println(((JButton)evt.getSource()).getText());
+        String letter = ((JButton)evt.getSource()).getText();
+        hangman.addLetter(letter);
     }//GEN-LAST:event_virtualKeyboard1ActionPerformed
+
+    private void btnNewGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewGameActionPerformed
+        hangman.startNewGame();
+        virtualKeyboard1.setEnabled(true);
+    }//GEN-LAST:event_btnNewGameActionPerformed
 
     private void updateStatusBar() {
         int count = wordGen.count();
@@ -193,6 +266,10 @@ public class gameFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddWord;
     private javax.swing.JButton btnGetRandomWord;
+    private javax.swing.JButton btnNewGame;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lblTotalWords;
     private javax.swing.JMenu mFile;
     private javax.swing.JMenu mHelp;
@@ -202,7 +279,25 @@ public class gameFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem miNewGame;
     private javax.swing.JMenuItem miQuit;
     private javax.swing.JMenuItem miResetWordList;
+    private java.awt.TextField txtMysteryWord;
+    private javax.swing.JTextField txtPlayerName;
     private javax.swing.JTextField txtRandomWord;
+    private javax.swing.JTextField txtScore;
     private dev.simondufour.hangman.ui.VirtualKeyboard virtualKeyboard1;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void updatePlayerName(String playerName) {
+        txtPlayerName.setText(playerName);
+    }
+
+    @Override
+    public void updateScore(int score) {
+        txtScore.setText(String.valueOf(score));
+    }
+    
+    @Override
+    public void updateMysteryWord(String mysteryWord) {
+        txtMysteryWord.setText(mysteryWord);
+    }
 }

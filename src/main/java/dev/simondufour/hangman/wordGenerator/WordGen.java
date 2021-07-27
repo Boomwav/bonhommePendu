@@ -13,7 +13,7 @@ import java.util.Random;
  *
  * @author Simon Dufour
  */
-public class WordGen {
+public class WordGen implements WordGenerator {
     private Random r = new Random();
     private ArrayList<String> backupWordList = new ArrayList<String>();
     private ArrayList<String> wordList = new ArrayList<String>();
